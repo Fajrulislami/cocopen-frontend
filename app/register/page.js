@@ -248,29 +248,27 @@ export default function RegisterPage() {
       className="hidden"
     />
 
-    {/* Tombol Upload yang Bisa Diklik */}
-    <div>
+    {/* Tombol Upload Foto Aesthetic */}
+<div className="flex items-center">
   <label
     htmlFor="photo-upload"
-    className="flex items-center space-x-2 cursor-pointer text-sm font-medium text-gray-700 hover:text-sky-500 transition duration-300"
+    className="flex items-center gap-3 px-4 py-2 bg-gradient-to-r from-sky-400 to-blue-500 text-white rounded-full shadow-md cursor-pointer hover:scale-105 hover:shadow-lg transition-transform duration-300 ease-out"
   >
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 text-gray-500">
-      <path d="M12 12A5 5 0 0117 17H7a5 5 0 010-10h10z" />
-      <path d="M12 12A7 7 0 005 19c0 1.555 1.266 2.818 2.943 3.72 1.677-1.906 2.944-2.212 2.944-3.72 0-1.555-1.267-2.817-2.944-3.72C13.266 9.182 12 10.445 12 12z" />
+    {/* Icon Upload */}
+    <svg xmlns="http://www.w3.org/2000/svg" 
+      fill="none" 
+      viewBox="0 0 24 24" 
+      strokeWidth={2} 
+      stroke="currentColor" 
+      className="w-5 h-5">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5-5m0 0l5 5m-5-5v12" />
     </svg>
-    <span className="bg-sky-300 p-sm">Tambahkan file</span>
-  </label>
 
-  {/* Input file disembunyikan */}
-  <input
-    id="photo-upload"
-    type="file"
-    name="photo"
-    accept=".jpg, .jpeg"
-    onChange={handleChange}
-    className="hidden"
-  />
+    <span className="font-medium">Upload Foto</span>
+  </label>
+  <input id="photo-upload" type="file" className="hidden" />
 </div>
+
 
     {/* Preview Nama File (Opsional) */}
     {formData.photo && (

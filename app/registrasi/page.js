@@ -92,10 +92,10 @@ export default function RegisterPage() {
     <div className="min-h-screen bg-gradient-to-br from-sky-50 via-white to-blue-50 flex items-center justify-center px-4 py-12">
       {/* Container utama: tetap di tengah */}
       <FadeIn>
-        <div className="w-full max-w-4xl bg-white shadow-2xl rounded-3xl overflow-hidden flex flex-col md:flex-row">
+        <div className="w-full max-w-4xl  h-auto md:h-[600px] bg-white shadow-2xl rounded-3xl overflow-hidden flex flex-col md:flex-row md:items-center">
           
           {/* Left Section - Illustration */}
-          <div className="w-full md:w-1/2 bg-gradient-to-br from-sky-500 to-blue-600 text-white p-8 md:p-10 flex flex-col justify-center items-center">
+          <div className="w-full md:w-1/2 md:h-140 bg-gradient-to-br md:ml-5 md:rounded-2xl from-sky-500 to-blue-600 text-white p-8 md:p-10 flex flex-col justify-center items-center">
             <div className="mt-10 w-full flex justify-center">
               <Image
                 src="/Mobile-encryption-amico-1.png"
@@ -109,17 +109,22 @@ export default function RegisterPage() {
 
           {/* Right Section - Register Form */}
           <div className="w-full md:w-1/2 p-8 md:p-10 relative bg-gradient-to-br from-white to-sky-50">
-            {/* Logo di latar belakang */}
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <Image
-                src="/logo.png"
-                alt="Coconut Logo"
-                width={120}
-                height={120}
-                style={{ width: '250px', height: '280px' }}
-                className="opacity-10"
-              />
-            </div>
+            {/* Logo di latar belakang (transparan) */}
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <Image
+                  src="/logo.png"
+                  alt="Coconut Logo"
+                  width={250} // Lebar logo dalam piksel
+                  height={340} // Tinggi logo dalam piksel
+                  style={{
+                    width: "250px", // Tetapkan lebar
+                    height: "340px", // Tetapkan tinggi
+                    opacity: 0.1, // Atur opasitas agar logo tampak transparan
+                    objectFit: "contain", // Menjaga rasio aspek logo
+                  }}
+                  className="opacity-10"
+                />
+              </div>
 
             {/* Konten Form */}
             <div className="relative z-10 space-y-6">
@@ -254,14 +259,6 @@ export default function RegisterPage() {
                   </button>
                 </SlideUp>
               </form>
-
-              <SlideUp delay={900} className="text-center mt-2 text-sm text-gray-600">
-                Dengan mendaftar, kamu menyetujui{' '}
-                <Link href="/terms" className="text-sky-600 hover:underline font-medium">
-                  Syarat & Ketentuan
-                </Link>{' '}
-                kami.
-              </SlideUp>
             </div>
           </div>
         </div>

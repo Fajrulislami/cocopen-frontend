@@ -26,18 +26,14 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const data = await apiClient("/login", {
+      // panggil API login -> cookie akan otomatis dibuat oleh server
+      await apiClient("/login", {
         method: "POST",
         body: JSON.stringify({ username, password }),
       });
 
-      // Simpan token dan data user
-      if (data.token) {
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("user", JSON.stringify(data.user));
-      }
-
-      // Redirect setelah login
+      // ❌ tidak perlu lagi simpan token di localStorage
+      // ✅ cukup redirect saja, cookie sudah tersimpan di browser
       router.push("/");
     } catch (err) {
       setError(err.message || "Login gagal. Cek username/password.");
@@ -49,9 +45,9 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-sky-50 via-white to-blue-50 flex items-center justify-center px-4 py-12">
       <FadeIn>
-        <div className="w-full max-w-4xl h-auto md:h-[600px] bg-white shadow-2xl rounded-3xl overflow-hidden flex flex-col md:flex-row">
+        <div className="w-full max-w-4xl  h-auto md:h-[600px] bg-white shadow-2xl rounded-3xl overflow-hidden flex flex-col md:flex-row md:items-center ">
           {/* Left Section - Illustration */}
-          <div className="w-full md:w-1/2 bg-gradient-to-br from-sky-500 to-blue-600 text-white p-8 md:p-10 flex flex-col justify-center items-center">
+          <div className="w-full md:w-1/2 md:h-140 bg-gradient-to-br md:ml-5 md:rounded-2xl from-sky-500 to-blue-600 text-white p-8 md:p-10 flex flex-col justify-center items-center">
             <div className="mt-10 w-full flex justify-center">
               <Image
                 src="/Mobile-encryption-amico-1.png"
@@ -65,14 +61,19 @@ export default function LoginPage() {
 
           {/* Right Section - Login Form */}
           <div className="w-full md:w-1/2 p-8 md:p-10 relative bg-gradient-to-br from-white to-sky-50 flex flex-col justify-center">
-            {/* Logo di latar belakang (transparan) */}
+            {/* Logo transparan */}
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <Image
                 src="/logo.png"
                 alt="Coconut Logo"
-                width={120}
-                height={120}
-                style={{ width: "250px", height: "280px" }}
+                width={250}
+                height={340}
+                style={{
+                  width: "250px",
+                  height: "340px",
+                  opacity: 0.1,
+                  objectFit: "contain",
+                }}
                 className="opacity-10"
               />
             </div>
@@ -173,19 +174,18 @@ export default function LoginPage() {
                 </SlideUp>
               </form>
 
-              {/* Tambahkan: Belum punya akun? */}
               <SlideUp delay={800}>
                 <div className="text-center mt-6">
                   <Link
                     href="/registrasi"
                     className="
-        inline-block text-sm 
-        text-gray-600 hover:text-sky-700 
-        font-medium 
-        transition-all duration-200
-        hover:underline hover:underline-offset-2
-        focus:outline-none focus:ring-2 focus:ring-sky-300 rounded
-      "
+                      inline-block text-sm 
+                      text-gray-600 hover:text-sky-700 
+                      font-medium 
+                      transition-all duration-200
+                      hover:underline hover:underline-offset-2
+                      focus:outline-none focus:ring-2 focus:ring-sky-300 rounded
+                    "
                   >
                     Belum punya akun? Daftar di sini
                   </Link>
