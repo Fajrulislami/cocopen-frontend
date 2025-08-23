@@ -1,268 +1,298 @@
-'use client';
+"use client";
 
-import Image from 'next/image';
-import { useState, useEffect } from 'react';
-import { FadeIn, SlideUp } from '../../components/Animations';
+import { useState, useEffect, useRef } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
 
-export default function DashboardPage() {
-   const [isLoggedIn, setIsLoggedIn] = useState(true);
+export default function Navbar() {
+	const [isScrolled, setIsScrolled] = useState(false);
+	const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+	const [userMenuOpen, setUserMenuOpen] = useState(false);
+	const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  // Data akan diambil dari API nanti
-  const [profile, setProfile] = useState({
-    name: 'Saudah Al',
-    email: 'saudah@gmail.com',
-    role: 'Calon Anggota',
-    joinDate: '13 Agustus 2025',
-    avatar: '/slider/saudahlatarbiru.png',
-  });
+	const userMenuRef = useRef(null);
+	const userButtonRef = useRef(null);
+	const router = useRouter();
 
-  const [resultStatus, setResultStatus] = useState('Menunggu Hasil'); // 'Lulus', 'Tidak Lulus', 'Menunggu Hasil'
-  const [scheduleStatus] = useState('Dikonfirmasi');
-  const [testSchedule] = useState([
-    { date: '15 April 2025', time: '09:00 - 11:00', location: 'Algo cofee dan Snack' },
-  ]);
+	// Cek login status saat komponen mount
+	useEffect(() => {
+		const token = localStorage.getItem("auth_token");
+		setIsLoggedIn(!!token);
 
-  const [newDate, setNewDate] = useState('');
-  const [reason, setReason] = useState('');
-  const [submitStatus, setSubmitStatus] = useState('');
+		const handleScroll = () => {
+			setIsScrolled(window.scrollY > 10);
+		};
 
-  const [notifications, setNotifications] = useState([
-    { id: 1, message: 'Wawancara Anda telah dikonfirmasi untuk 16 Agustus 2025.', time: '2 jam lalu', read: false },
-    { id: 2, message: 'Pengajuan perubahan jadwal sedang diproses.', time: '1 hari lalu', read: true },
-  ]);
+		window.addEventListener("scroll", handleScroll);
+		return () => window.removeEventListener("scroll", handleScroll);
+	}, []);
 
-  // Simulasi notifikasi baru dari sistem
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setNotifications(prev => [
-        { 
-          id: Date.now(), 
-          message: 'Jadwal Tes anda akan dilaksanakan 14 Agustus 2025 pukul 09.00 - 17.00 WITA', 
-          time: 'Baru', 
-          read: false 
-        },
-        ...prev,
-      ]);
-    }, 5000);
+	// Tutup dropdown saat klik di luar
+	useEffect(() => {
+		const handleClickOutside = (event) => {
+			if (
+				userMenuRef.current &&
+				userButtonRef.current &&
+				!userMenuRef.current.contains(event.target) &&
+				!userButtonRef.current.contains(event.target)
+			) {
+				setUserMenuOpen(false);
+			}
+		};
 
-    return () => clearTimeout(timer);
-  }, []);
+		document.addEventListener("click", handleClickOutside);
+		return () => document.removeEventListener("click", handleClickOutside);
+	}, []);
 
-  const handleSubmitReschedule = (e) => {
-    e.preventDefault();
-    if (!newDate || !reason.trim()) {
-      setSubmitStatus('Mohon isi tanggal dan alasan.');
-      return;
-    }
+	// Toggle mobile menu
+	const toggleMobileMenu = () => {
+		setMobileMenuOpen((prev) => !prev);
+	};
 
-    // Di masa depan: kirim ke API
-    setSubmitStatus('Terima kasih, permintaan Anda segera diproses oleh panitia.');
-    setNewDate('');
-    setReason('');
-  };
+	// Toggle user menu
+	const toggleUserMenu = () => {
+		if (!isLoggedIn) {
+			router.push("/login");
+			return;
+		}
+		setUserMenuOpen((prev) => !prev);
+	};
 
-  if (!isLoggedIn) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-sky-50 via-white to-blue-50 flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-800">Akses Ditolak</h2>
-          <p className="text-gray-600">Anda harus masuk untuk melihat dashboard.</p>
-        </div>
-      </div>
-    );
-  }
-  return (
-   <div className="min-h-screen bg-gradient-to-br from-sky-50 via-white to-blue-50">
-     
+	// Handle logout
+	const handleLogout = () => {
+		localStorage.removeItem("auth_token");
+		setIsLoggedIn(false);
+		setUserMenuOpen(false);
+		router.push("/"); // Redirect ke home
+	};
 
-      <main className="relative overflow-hidden py-24">
-        <div className="container mx-auto px-7 max-w-6xl">
-          <FadeIn>
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center mb-6 bg-gradient-to-r from-blue-800 via-sky-600 to-blue-900 bg-clip-text text-transparent leading-tight tracking-tight max-w-4xl mx-auto">
-              Dashboard Calon Anggota
-            </h1>
-            <p className="text-lg text-gray-600 text-center max-w-3xl mx-auto mb-16">
-              Selamat datang kembali, {profile.name}. Kelola aktivitas dan jadwal Anda di sini.
-            </p>
-          </FadeIn>
+	return (
+		<nav
+			className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+				isScrolled
+					? "bg-white/5 backdrop-blur-lg shadow-lg py-2"
+					: "bg-white/5 backdrop-blur-lg shadow-lg py-4"
+			}`}>
+			{/* Container Navbar */}
+			<div className="w-screen pr-10 pl-6 md:px-16">
+				<div className="relative flex h-9 items-center justify-between">
+					{/* Logo */}
+					<div className="flex flex-1 items-center justify-between sm:justify-between">
+						<Link href="/" className="flex items-center md:w-25">
+							<Image
+								src="/logo.png"
+								alt="Coconut Logo"
+								width={40}
+								height={40}
+								className="h-10 w-auto"
+							/>
+						</Link>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-            {/* Kolom Kiri: Profil & Status */}
-            <div className="lg:col-span-2 space-y-8">
-              {/* Informasi Profil */}
-              <SlideUp delay={200}>
-                <div className="bg-gradient-to-br from-white/90 to-sky-50/90 p-8 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 border border-white/50 backdrop-blur-sm">
-                  <h2 className="text-2xl font-bold text-blue-900 mb-6 flex items-center">
-                    <span className="w-2 h-2 bg-sky-500 rounded-full mr-3"></span>
-                    Informasi Profil
-                  </h2>
-                  <div className="flex items-center space-x-6 mb-6">
-                    <Image
-                      src={profile.avatar}
-                      alt="Profil"
-                      width={80}
-                      height={80}
-                      className="rounded-full border-4 border-sky-200"
-                    />
-                    <div>
-                      <h3 className="text-xl font-semibold text-gray-800">{profile.name}</h3>
-                      <p className="text-gray-600">{profile.email}</p>
-                      <p className="text-sm text-blue-600 font-medium">{profile.role}</p>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <span className="text-gray-500">Tanggal Bergabung</span>
-                      <p className="font-medium text-gray-800">{profile.joinDate}</p>
-                    </div>
-                    <div>
-                      <span className="text-gray-500">Status</span>
-                      <p className="font-medium text-green-600">Aktif</p>
-                    </div>
-                  </div>
-                </div>
-              </SlideUp>
+						{/* Mobile Menu Button */}
+						<div className="relative inset-y-0 left-0 flex items-center sm:hidden">
+							<button
+								type="button"
+								onClick={toggleMobileMenu}
+								className="relative inline-flex items-center justify-end rounded-md p-2 text-gray-900 hover:bg-white/5 focus:outline-none focus:ring-2 focus:ring-black"
+								aria-expanded={mobileMenuOpen}>
+								<span className="sr-only">Open main menu</span>
+								{/* Hamburger Icon */}
+								<svg
+									className={`${mobileMenuOpen ? "hidden" : "block"} h-6 w-6`}
+									fill="none"
+									stroke="currentColor"
+									strokeWidth="1.5"
+									viewBox="0 0 24 24">
+									<path
+										strokeLinecap="round"
+										strokeLinejoin="round"
+										d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
+									/>
+								</svg>
+								{/* Close Icon */}
+								<svg
+									className={`${mobileMenuOpen ? "block" : "hidden"} h-6 w-6`}
+									fill="none"
+									stroke="currentColor"
+									strokeWidth="1.5"
+									viewBox="0 0 24 24">
+									<path
+										strokeLinecap="round"
+										strokeLinejoin="round"
+										d="M6 18L18 6M6 6l12 12"
+									/>
+								</svg>
+							</button>
+						</div>
 
-              {/* Status & Kelulusan */}
-              <SlideUp delay={300}>
-                <div className="bg-gradient-to-br from-white/90 to-sky-50/90 p-8 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 border border-white/50 backdrop-blur-sm">
-                  <h2 className="text-2xl font-bold text-blue-900 mb-6 flex items-center">
-                    <span className="w-2 h-2 bg-blue-500 rounded-full mr-3"></span>
-                    Status & Hasil Seleksi
-                  </h2>
+						{/* Desktop Menu */}
+						<div className="hidden sm:block">
+							<div className="flex justify-center">
+								<div className="flex space-x-6 text-center">
+									{[
+										{ href: "/", label: "BERANDA" },
+										{ href: "/about", label: "TENTANG" },
+										{ href: "/activity", label: "AKTIVITAS" },
+										{ href: "/contact", label: "KONTAK" },
+									].map((item) => (
+										<Link
+											key={item.href}
+											href={item.href}
+											className="relative inline-block px-5 py-2 text-gray-800 font-medium rounded-lg transition-all duration-300 transform hover:scale-110 group">
+											{item.label}
+											<span className="absolute inset-0 bg-gradient-to-r from-sky-500 to-blue-600 rounded-lg opacity-0 group-hover:opacity-60 transition-opacity duration-300"></span>
+											<span className="absolute inset-0 flex items-center justify-center text-gray-800 group-hover:text-white transition-colors duration-300 pointer-events-none">
+												{item.label}
+											</span>
+										</Link>
+									))}
+								</div>
+							</div>
+						</div>
+					</div>
 
-                  {/* Status Jadwal */}
-                  <div className="p-6 bg-blue-50 rounded-2xl border border-blue-200 mb-6">
-                    <p className="text-lg font-semibold text-blue-800">
-                      Jadwal Tes: <span className="text-green-600">{scheduleStatus}</span>
-                    </p>
-                    <p className="text-gray-700 mt-2">Jadwal Anda telah dikonfirmasi. Siapkan perangkat dan dokumen Anda.</p>
-                  </div>
+					{/* Right Side: Auth or Profile */}
+					<div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0 space-x-3">
+						{/* Notification Button (hanya muncul jika login) */}
+						{isLoggedIn && (
+							<button
+								type="button"
+								className="relative rounded-full p-1.5 text-gray-900 hover:bg-white/30 focus:outline-none focus:ring-2 md:block hidden focus:ring-indigo-500 transition"
+								aria-label="View notifications">
+								<span className="absolute -inset-1.5"></span>
+								<svg
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									strokeWidth="1.5"
+									className="w-6 h-6">
+									<path
+										d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0"
+										strokeLinecap="round"
+										strokeLinejoin="round"
+									/>
+								</svg>
+							</button>
+						)}
 
-                  {/* Status Kelulusan */}
-                  <div
-                    className={`p-6 rounded-2xl border-l-4 ${
-                      resultStatus === 'Lulus'
-                        ? 'border-l-green-500 bg-green-50'
-                        : resultStatus === 'Tidak Lulus'
-                        ? 'border-l-red-500 bg-red-50'
-                        : 'border-l-yellow-500 bg-yellow-50'
-                    }`}
-                  >
-                    <h3 className="font-semibold text-gray-800">Hasil Seleksi</h3>
-                    <p className="text-lg font-bold mt-1">
-                      {resultStatus === 'Lulus' && <span className="text-green-700">🎉 LULUS</span>}
-                      {resultStatus === 'Tidak Lulus' && <span className="text-red-700">💔 TIDAK LULUS</span>}
-                      {resultStatus === 'Menunggu Hasil' && <span className="text-yellow-700">⏳ MENUNGGU HASIL</span>}
-                    </p>
-                    <p className="text-sm text-gray-600 mt-1">
-                      {resultStatus === 'Lulus' && 'Selamat! Anda diterima sebagai anggota Coconut. Cek WhatsApp untuk instruksi selanjutnya.'}
-                      {resultStatus === 'Tidak Lulus' && 'Terima kasih atas partisipasi Anda. Tetap semangat dan jangan menyerah!'}
-                      {resultStatus === 'Menunggu Hasil' && 'Hasil seleksi akan diumumkan melalui email dan WhatsApp dalam 3-5 hari kerja.'}
-                    </p>
-                  </div>
-                </div>
-              </SlideUp>
+						{/* Conditional: Login/Register vs Profile */}
+						{isLoggedIn ? (
+							// 🔐 Sudah login → tampilkan profile
+							<div
+								className="md:relative md:ml-1 md:block hidden"
+								ref={userMenuRef}>
+								<Link href="/dashboard">
+									<button
+										type="button"
+										ref={userButtonRef}
+										className="relative flex rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-700 focus:ring-offset-2"
+										onClick={toggleUserMenu}>
+										<img
+											className="h-10 w-10 rounded-full"
+											src="/slider/saudahlatarbiru.png"
+											alt="User profile"
+										/>
+									</button>
+								</Link>
 
-              {/* Jadwal Tes */}
-              <SlideUp delay={400}>
-                <div className="bg-gradient-to-br from-white/90 to-sky-50/90 p-8 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 border border-white/50 backdrop-blur-sm">
-                  <h2 className="text-2xl font-bold text-blue-900 mb-6 flex items-center">
-                    <span className="w-2 h-2 bg-sky-600 rounded-full mr-3"></span>
-                    Jadwal Tes
-                  </h2>
-                  {testSchedule.map((test, index) => (
-                    <div key={index} className="p-5 bg-white/70 rounded-xl border border-sky-100 mb-4">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <p className="font-semibold text-gray-800">{test.date}</p>
-                          <p className="text-gray-600">{test.time} | {test.location}</p>
-                        </div>
-                        <span className="bg-green-100 text-green-800 text-xs px-3 py-1 rounded-full font-medium">
-                          Dikonfirmasi
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </SlideUp>
+								{/* User Dropdown */}
+								{userMenuOpen && (
+									<div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50">
+										<div className="py-1">
+											<Link
+												href="/dashboard"
+												className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+												onClick={() => setUserMenuOpen(false)}>
+												Profil Saya
+											</Link>
+											<button
+												onClick={handleLogout}
+												className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+												Keluar
+											</button>
+										</div>
+									</div>
+								)}
+							</div>
+						) : (
+							// 🚪 Belum login → tampilkan tombol Masuk & Daftar
+							<div className="flex items-center space-x-3">
+								<Link
+									href="/login"
+									className="text-sm font-medium text-gray-800 hover:text-sky-700 transition">
+									Masuk
+								</Link>
+								<Link
+									href="/registrasi"
+									className="hidden md:block bg-gradient-to-r from-sky-500 to-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-sky-600 hover:to-blue-700 transition-all shadow">
+									Daftar
+								</Link>
+							</div>
+						)}
+					</div>
+				</div>
+			</div>
 
-              {/* Pengajuan Ubah Jadwal */}
-              <SlideUp delay={500}>
-                <div className="bg-gradient-to-br from-white/90 to-sky-50/90 p-8 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 border border-white/50 backdrop-blur-sm">
-                  <h2 className="text-2xl font-bold text-blue-900 mb-6 flex items-center">
-                    <span className="w-2 h-2 bg-blue-600 rounded-full mr-3"></span>
-                    Pengajuan Ubah Jadwal Tes
-                  </h2>
-                  <form onSubmit={handleSubmitReschedule} className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Tanggal Baru</label>
-                      <input
-                        type="date"
-                        value={newDate}
-                        onChange={(e) => setNewDate(e.target.value)}
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-400 outline-none"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Alasan</label>
-                      <textarea
-                        value={reason}
-                        onChange={(e) => setReason(e.target.value)}
-                        rows="3"
-                        placeholder="Tuliskan alasan perubahan jadwal..."
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-400 outline-none"
-                      ></textarea>
-                    </div>
-                    <button
-                      type="submit"
-                      className="bg-gradient-to-r from-sky-500 to-blue-600 text-white font-semibold px-6 py-2 rounded-full hover:from-sky-600 hover:to-blue-700 transition-all duration-300 shadow"
-                    >
-                      Ajukan Perubahan
-                    </button>
-                  </form>
-                  {submitStatus && (
-                    <p className="mt-4 text-sm text-blue-600 bg-blue-50 p-3 rounded-lg">{submitStatus}</p>
-                  )}
-                </div>
-              </SlideUp>
-            </div>
-
-            {/* Kolom Kanan: Pemberitahuan */}
-            <SlideUp delay={600}>
-              <div className="bg-gradient-to-br from-white/90 to-sky-50/90 p-8 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 border border-white/50 backdrop-blur-sm h-fit">
-                <h2 className="text-2xl font-bold text-blue-900 mb-6 flex items-center">
-                  <span className="w-2 h-2 bg-sky-700 rounded-full mr-3"></span>
-                  Pemberitahuan
-                </h2>
-                <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
-                  {notifications.length === 0 ? (
-                    <p className="text-gray-500 text-sm">Tidak ada pemberitahuan.</p>
-                  ) : (
-                    notifications.map((notif) => (
-                      <div
-                        key={notif.id}
-                        className={`p-4 rounded-xl border-l-4 ${
-                          notif.read
-                            ? 'border-gray-300 bg-gray-50'
-                            : 'border-blue-500 bg-blue-50'
-                        }`}
-                      >
-                        <p className={`text-sm ${notif.read ? 'text-gray-700' : 'text-blue-800 font-medium'}`}>
-                          {notif.message}
-                        </p>
-                        <p className="text-xs text-gray-500 mt-1">{notif.time}</p>
-                      </div>
-                    ))
-                  )}
-                </div>
-              </div>
-            </SlideUp>
-          </div>
-        </div>
-      </main>
-
-      
-    </div>
-  );
+			{/* Mobile Menu */}
+			<div className={`${mobileMenuOpen ? "block" : "hidden"} sm:hidden`}>
+				<div className="space-y-1 px-4 pb-3 pt-2">
+					{isLoggedIn ? (
+						<>
+							<Link
+								href="/dashboard"
+								className="block rounded-md px-3 py-2 text-base font-medium text-black hover:bg-black/5 hover:text-gray-600"
+								onClick={() => setMobileMenuOpen(false)}>
+								Profil
+							</Link>
+							<button
+								onClick={handleLogout}
+								className="block w-full text-left rounded-md px-3 py-2 text-base font-medium text-black hover:bg-black/5 hover:text-gray-600">
+								Keluar
+							</button>
+						</>
+					) : (
+						<>
+							<Link
+								href="/login"
+								className="block rounded-md px-3 py-2 text-base font-medium text-black hover:bg-black/5 hover:text-gray-600"
+								onClick={() => setMobileMenuOpen(false)}>
+								Masuk
+							</Link>
+							<Link
+								href="/registrasi"
+								className="block rounded-md bg-gradient-to-r from-sky-500 to-blue-600 text-white px-3 py-2 text-base font-medium hover:from-sky-600 hover:to-blue-700"
+								onClick={() => setMobileMenuOpen(false)}>
+								Daftar
+							</Link>
+						</>
+					)}
+					<Link
+						href="/"
+						className="block rounded-md px-3 py-2 text-base font-medium text-black hover:bg-black/5 hover:text-gray-600"
+						onClick={() => setMobileMenuOpen(false)}>
+						Beranda
+					</Link>
+					<Link
+						href="/about"
+						className="block rounded-md px-3 py-2 text-base font-medium text-black hover:bg-black/5 hover:text-gray-600"
+						onClick={() => setMobileMenuOpen(false)}>
+						Tentang
+					</Link>
+					<Link
+						href="/activity"
+						className="block rounded-md px-3 py-2 text-base font-medium text-black hover:bg-black/5 hover:text-gray-600"
+						onClick={() => setMobileMenuOpen(false)}>
+						Aktivitas
+					</Link>
+					<Link
+						href="/contact"
+						className="block rounded-md px-3 py-2 text-base font-medium text-black hover:bg-black/5 hover:text-gray-600"
+						onClick={() => setMobileMenuOpen(false)}>
+						Kontak
+					</Link>
+				</div>
+			</div>
+		</nav>
+	);
 }
