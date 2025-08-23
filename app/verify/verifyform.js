@@ -32,7 +32,7 @@ export default function VerifyPage() {
 				setMessage(data.message || "Email berhasil diverifikasi!");
 				router.push("/login");
 			} catch (err) {
-				// ❌ Tampilkan error dari backend
+				
 				setStatus("error");
 				setMessage(
 					err.message ||
