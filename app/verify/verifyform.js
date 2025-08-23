@@ -29,14 +29,8 @@ export default function VerifyPage() {
 
 				// ✅ Ambil message dari backend
 				setStatus("success");
-				setMessage(
-					data.message || "Email berhasil diverifikasi! Silakan login."
-				);
-
-				// Redirect setelah 3 detik
-				setTimeout(() => {
-					router.push("/login");
-				}, 3000);
+				setMessage(data.message || "Email berhasil diverifikasi!");
+				router.push("/login");
 			} catch (err) {
 				// ❌ Tampilkan error dari backend
 				setStatus("error");
